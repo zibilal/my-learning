@@ -1,0 +1,19 @@
+use std::thread;
+use std::sync::{Arc, Mutex};
+fn main() {
+    let counter = Arc::new(Mutex::new(0));
+    let mut handles = vec![];
+
+    for _ in 0..10 {
+        let value = counter.clone();
+        let handle = thread::spawn(move || {
+            let mut num = value.lock().unwrap();
+            *num += 1;
+        });
+        handles.push(handle);
+    }
+    for handle in handles {
+        handle.join().unwrap();
+    }
+    // println!("Result: {}", *counter.lock().unwrap())
+}
