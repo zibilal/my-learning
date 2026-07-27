@@ -5,16 +5,12 @@ use my_learning::page_links;
 #[tokio::main]
 async fn main() -> Result<()> {
     let Some(url) = std::env::args().nth(1) else {
-        anyhow::bail!("You didn't provide the server url");
+      anyhow::bail!("Usage: web_scrapper1 url");
     };
-
-    let link = Url::parse(&url)?;
-    let client = Client::new();
-    let links = page_links(&client, &link).await?;
-
+    let url = Url::parse(&url)?;
+    let links = page_links(&Client::new(), &url).await?;
     for link in links {
         println!("{}", link);
     }
-
     Ok(())
 }
