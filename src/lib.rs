@@ -1,4 +1,20 @@
-use reqwest::{Client, Url, Result};
+#[derive(Debug)]
+pub enum List {
+    Cons(i32, Box<List>),
+    Nil,
+}
+
+#[derive(PartialEq, Debug)]
+struct Shoe {
+    size: u32,
+    style: String,
+}
+
+fn shoe_in_size(shoes: Vec<Shoe>, shoe_size: u32) -> Vec<Shoe> {
+    shoes.into_iter().filter(|s| s.size == shoe_size).collect()
+}
+
+use reqwest::{Client, Result, Url};
 use scraper::{Html, Selector};
 
 pub async fn page_links(client: &Client, url: &Url) -> Result<Vec<Url>> {
@@ -24,6 +40,30 @@ pub async fn page_links(client: &Client, url: &Url) -> Result<Vec<Url>> {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+    #[test]
+    fn filters_by_size() {
+        let shoes = vec![
+            Shoe { size: 10, style: String::from("sneaker")},
+            Shoe { size: 13, style: String::from("sandal") },
+            Shoe { size: 10, style: String::from("boot") },
+        ];
+        let in_my_size = shoe_in_size(shoes, 10);
+        assert_eq!(
+            in_my_size,
+            vec![
+                Shoe {
+                    size: 10,
+                    style: String::from("sneaker"),
+                },
+                Shoe {
+                    size: 10,
+                    style: String::from("boot"),
+                }
+            ]
+        );
+    }
+
     use reqwest::{Client, Url};
     use wiremock::{
         matchers::{method, path},
