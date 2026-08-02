@@ -1,6 +1,6 @@
 use anyhow::Result;
 use reqwest::{Client, Url};
-use my_learning::page_links;
+use my_learning::scrap_links::page_links;
 
 #[tokio::main]
 async fn main() -> Result<()> {
