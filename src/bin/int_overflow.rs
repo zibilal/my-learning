@@ -3,7 +3,7 @@ fn main() {
 }
 
 fn midpoint(lo: i32, hi: i32) -> i32 {
-    (lo + hi) / 2
+    lo + (hi - lo) / 2
 }
 
 #[cfg(test)]
