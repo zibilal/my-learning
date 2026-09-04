@@ -10,6 +10,7 @@ reqwest = "0.13.4"
 netiquette = "0.1.1"
 scraper = "0.27.0"
 waker-fn = "1.2.0"
+nix = { version = "0.31.3", features = ["poll"] }
 
 [dev-dependencies]
 wiremock="0.6"
