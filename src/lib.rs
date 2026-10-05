@@ -1,5 +1,7 @@
 mod my_reactor;
 mod an_operator_overloading;
+mod reverse_strings;
+mod execsm_gigaseconds;
 
 mod rec_list {
     #[derive(Debug)]

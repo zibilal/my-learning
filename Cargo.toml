@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 tokio = {version='1.53.1', features = ['full']}
+time = { version = "0.3", features = ["macros", "formatting", "parsing"] }
 anyhow = "1.0.104"
 reqwest = "0.13.4"
 netiquette = "0.1.1"
