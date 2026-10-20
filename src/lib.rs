@@ -2,6 +2,10 @@ mod my_reactor;
 mod an_operator_overloading;
 mod reverse_strings;
 mod execsm_gigaseconds;
+mod interval;
+mod my_box;
+mod learning_closures;
+mod learning_iterator;
 
 mod rec_list {
     #[derive(Debug)]
