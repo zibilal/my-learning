@@ -236,3 +236,118 @@ fn test_zip()  {
         ],
     );
 }
+
+struct Flaky(bool);
+
+impl Iterator for Flaky {
+    type Item = &'static str;
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.0 {
+            self.0 = false;
+            Some("totally the last item")
+        } else {
+            self.0 = true;
+            None
+        }
+    }
+}
+
+#[test]
+fn test_flaky() {
+    let mut flaky = Flaky(true);
+    assert_eq!(flaky.next(), Some("totally the last item"));
+    assert_eq!(flaky.next(), None);
+    assert_eq!(flaky.next(), Some("totally the last item"));
+
+    let mut not_flaky = Flaky(true).fuse();
+    assert_eq!(not_flaky.next(), Some("totally the last item"));
+    assert_eq!(not_flaky.next(), None);
+    assert_eq!(not_flaky.next(), None);
+}
+
+#[test]
+fn test_reverse() {
+    let bee_parts = ["head", "thorax", "abdomen"];
+
+    let mut iter = bee_parts.iter();
+    assert_eq!(iter.next(), Some(&"head"));
+    assert_eq!(iter.next_back(), Some(&"abdomen"));
+    assert_eq!(iter.next(), Some(&"thorax"));
+
+    assert_eq!(iter.next(), None);
+    assert_eq!(iter.next(), None);
+
+    let meals = ["breakfast", "lunch", "dinner"];
+    let mut iter = meals.iter().rev();
+    assert_eq!(iter.next(), Some(&"dinner"));
+    assert_eq!(iter.next_back(), Some(&"breakfast"));
+    assert_eq!(iter.next(), Some(&"lunch"));
+    assert_eq!(iter.next(), None);
+}
+
+#[test]
+fn test_inspect() {
+    let upper_case: String = "große"
+        .chars()
+        .inspect(|c| println!("before: {c:?}"))
+        .flat_map(|c| c.to_uppercase())
+        .inspect(|c| println!("   after: {c:?}"))
+        .collect();
+    assert_eq!(upper_case, "GROSSE");
+}
+
+#[test]
+fn test_chunks_mut() {
+    let mut data = [1, 2, 3, 4, 5, 6, 7];
+    for chunk in data.chunks_mut(3) {
+        // Double every element in this chunk
+        for x in chunk.iter_mut() {
+            *x *= 2
+        }
+        chunk[0] += 100;
+    }
+
+    println!("{:?}", data);
+
+    // RGBA example
+    let mut pixels = vec![255u8, 0, 0, 255, 0, 255, 0, 255];
+    for px in pixels.chunks_mut(4) {
+        px[3] = 128; // set alpha to half
+    }
+}
+
+#[test]
+fn test_cloned() {
+    let a = ['1', '2', '3', '∞'];
+    assert_eq!(a.iter().next(), Some(&'1'));
+    assert_eq!(a.iter().cloned().next(), Some('1'));
+    assert_eq!(a.iter().copied().next(), Some('1'));
+}
+
+#[test]
+fn test_cycle() {
+    let dirs = ["North", "East", "South", "West"];
+    let mut spin = dirs.iter().cycle();
+    assert_eq!(spin.next(), Some(&"North"));
+    assert_eq!(spin.next(), Some(&"East"));
+    assert_eq!(spin.next(), Some(&"South"));
+    assert_eq!(spin.next(), Some(&"West"));
+    assert_eq!(spin.next(), Some(&"North"));
+    assert_eq!(spin.next(), Some(&"East"));
+
+    // second cycle test
+    let fizzes = iter::repeat_n("", 2).chain(iter::once("fizz")).cycle();
+    let buzzes = iter::repeat_n("", 4).chain(iter::once("buzz")).cycle();
+    let fizzes_buzzes = fizzes.zip(buzzes);
+
+    let fizz_buzz = (1..100)
+        .zip(fizzes_buzzes)
+        .map(|tuple| match tuple {
+            (i, ("", "")) => i.to_string(),
+            (_, (fizz, buzz)) => format!("{fizz}{buzz}"),
+        });
+
+    for line in fizz_buzz {
+        println!("{line}");
+    }
+}
