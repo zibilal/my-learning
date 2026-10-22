@@ -217,3 +217,22 @@ fn test_parse_number() {
     assert_eq!(parse_number(&mut chars), 1766319049);
     assert_eq!(chars.next(), None);
 }
+
+#[test]
+fn test_zip()  {
+    let v: Vec<_> = (0..).zip("ABCD".chars()).collect();
+    assert_eq!(v, vec![(0, 'A'), (1, 'B'), (2, 'C'), (3, 'D')]);
+
+    let endings = ["once", "twice", "chicken soup with rice"];
+    let rhyme: Vec<_> = iter::repeat("going")
+        .zip(endings)
+        .collect();
+    assert_eq!(
+        rhyme,
+        vec![
+            ("going", "once"),
+            ("going", "twice"),
+            ("going", "chicken soup with rice"),
+        ],
+    );
+}
