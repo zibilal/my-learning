@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::ffi::OsStr;
 use std::fmt::Debug;
@@ -350,4 +351,134 @@ fn test_cycle() {
     for line in fizz_buzz {
         println!("{line}");
     }
+}
+
+const VOWELS: [char; 5] = ['A', 'E', 'I', 'O', 'U'];
+fn count_vowels(s: &str) -> usize {
+    s.to_uppercase()
+        .chars()
+        .filter(|c| VOWELS.contains(c))
+        .count()
+}
+
+#[test]
+fn test_count_vowels() {
+    assert_eq!(count_vowels("A"), 1);
+    assert_eq!(count_vowels("Bilal Muhammad"), 5);
+}
+
+fn triangle(n: u64) -> u64 {
+    (1..=n).sum()
+}
+
+fn factorial(n: u64) -> u64 {
+    (1..=n).product()
+}
+
+#[test]
+fn test_both() {
+    assert_eq!(triangle(20), 210);
+    assert_eq!(factorial(20), 2432902008176640000);
+}
+
+#[test]
+fn test_max_min() {
+    assert_eq!([-2, 0, 1, 0, -2, -5].iter().max(), Some(&1));
+    assert_eq!([-2, 0, 1, 0, -2, -5].iter().min(), Some(&-5));
+}
+
+
+// Compare two f64 values. Panic if given a NaN
+fn cmp(lhs: &f64, rhs: &f64) -> Ordering {
+    lhs.partial_cmp(rhs).unwrap()
+}
+
+#[test]
+fn test_max_min_by() {
+    let numbers = [1.0, 4.0, 2.0];
+    assert_eq!(numbers.iter().copied().max_by(cmp), Some(4.0));
+    assert_eq!(numbers.iter().copied().min_by(cmp), Some(1.0));
+}
+
+#[test]
+#[should_panic(expected="called `Option::unwrap()` on a `None` value")]
+fn test_max_panic() {
+    let numbers = [1.0, 4.0, f64::NAN, 2.0];
+    assert_eq!(numbers.iter().copied().max_by(cmp), Some(4.0));
+}
+
+#[test]
+fn test_populations() {
+    let mut populations = HashMap::new();
+    populations.insert("Portland", 583_776);
+    populations.insert("Fossil", 449);
+    populations.insert("Greenhorn", 2);
+    populations.insert("Boring", 7_762);
+    populations.insert("The Dalles", 15_340);
+
+    assert_eq!(
+        populations.iter().max_by_key(|&(_name, pop) | pop),
+        Some((&"Portland", &583_776)),
+    );
+
+    assert_eq!(
+        populations.iter().min_by_key(|&(_name, pop)| pop),
+        Some((&"Greenhorn", &2)),
+    )
+}
+
+#[test]
+fn test_comparing_sequences() {
+    let packed = "Helen of Troy";
+    let spaced = "Helen     of     Troy";
+    let obscure = "Helen of Sandusky";   // nice person, just not famous
+
+    assert_ne!(packed, spaced);
+    assert!(packed.split_whitespace().eq(spaced.split_whitespace()));
+
+    // This is true because ' ' < 'o'
+    assert!(spaced < obscure);
+
+    // This is true because "Troy" > "Sandusky"
+    assert!(spaced.split_whitespace().gt(obscure.split_whitespace()));
+}
+
+#[test]
+fn test_any_all() {
+    let id = "Iterator";
+    assert!(id.chars().any(char::is_uppercase));
+    assert!(!id.chars().all(char::is_uppercase));
+}
+
+#[test]
+fn test_position() {
+    let text = "Xerxes";
+    assert_eq!(text.chars().position(|c| c == 'e'), Some(1));
+    assert_eq!(text.chars().position(|c| c == 'z'), None);
+
+    let bytes = b"Xerxes";
+    assert_eq!(bytes.iter().rposition(|&c| c == b'e'), Some(4));
+    assert_eq!(bytes.iter().rposition(|&c| c == b'X'), Some(0));
+}
+
+#[test]
+fn test_fold() {
+    let a = [5, 6, 7, 8, 9, 10];
+
+    assert_eq!(a.iter().fold(0, |n, _| n + 1), 6);            // count
+    assert_eq!(a.iter().fold(0, |n, i| n + i), 45);     // sum
+    assert_eq!(a.iter().fold(1, |n, i| n * i), 151200); // product
+
+    // max
+    assert_eq!(a.iter().cloned().fold(i32::min_value(), std::cmp::max), 10);
+
+
+    let a = ["Pack", "my", "box", "with", "five", "dozen", "liquor", "jugs"];
+    // See also: the `join` method on slices, which won't
+    // give you that extra space at the end
+    let pangram = a.iter().fold(String::new(), |s, w| s + w + " ");
+    assert_eq!(pangram, "Pack my box with five dozen liquor jugs ");
+
+    let weird_pangram = a.iter().rfold(String::new(), |s, w| s + w + " ");
+    assert_eq!(weird_pangram, "jugs liquor dozen five with box my Pack ");
 }

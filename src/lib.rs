@@ -1,5 +1,6 @@
 mod my_reactor;
 mod an_operator_overloading;
+mod closure_basic_router;
 mod reverse_strings;
 mod execsm_gigaseconds;
 mod interval;
