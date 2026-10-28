@@ -482,3 +482,54 @@ fn test_fold() {
     let weird_pangram = a.iter().rfold(String::new(), |s, w| s + w + " ");
     assert_eq!(weird_pangram, "jugs liquor dozen five with box my Pack ");
 }
+
+struct Park {
+    name: &'static str,
+    city: &'static str,
+    has_volcano: bool,
+}
+
+fn find_volcano_park<'a>(city: &str, parks: &'a [Park]) -> Option<&'a Park> {
+    parks
+        .iter()
+        .find(|park| park.city == city && park.has_volcano)
+}
+
+#[test]
+fn test_find_rfind_find_map(){
+    let mut populations = HashMap::new();
+    populations.insert("Portland", 583_776);
+    populations.insert("Fossil", 449);
+    populations.insert("Greenhorn", 2);
+    populations.insert("Boring", 7_762);
+    populations.insert("The Dalles", 15_340);
+
+    let parks = vec![
+        Park { name: "Mt. Tabor Park".into(), city: "Portland".into(), has_volcano: true },
+        Park { name: "Green Lake Park".into(), city: "Seattle".into(), has_volcano: false },
+        Park { name: "Pilot Butte".into(), city: "Bend".into(), has_volcano: true },
+    ];
+
+    assert_eq!(
+        populations.iter().find(|&(_, &pop)| pop > 1_000_000),
+        None,
+    );
+
+    assert_eq!(
+        populations.iter().find(|&(_, &pop)| pop > 500_000),
+        Some((&"Portland", &583_776)),
+    );
+
+    let big_city_with_volcano_park = populations
+        .iter()
+        .find_map(|(&city, _)| {
+           if let Some(park) = find_volcano_park(city, &parks) {
+               // find map returns this value, so our caller knows
+               // *which* parks we found.
+               return Some((city, park.name));
+           }
+            None
+        });
+
+    assert_eq!(big_city_with_volcano_park, Some(("Portland", "Mt. Tabor Park")));
+}
